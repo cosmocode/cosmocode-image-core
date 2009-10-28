@@ -1,12 +1,5 @@
 package com.cosmocode.image;
 
-/**
- *
- * @version $Id: CustomImageAnalyzer.java,v 1.7 2003/11/19 11:06:06 huettemann Exp $
- *
- * Written by CosmoCode GmbH 2001; contact: info@cosmocode.de
- */
-
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,10 +7,6 @@ import java.io.InputStream;
 
 public class CustomImageAnalyzer implements ImageAnalyzer  {
  
-	public static final String cvsID = "$Id: CustomImageAnalyzer.java,v 1.7 2003/11/19 11:06:06 huettemann Exp $";
-
-	String docroot = "";
-
 	// Liste der Segment-Typen
 	private static final int M_SOF0 = 0xC0;
 	private static final int M_SOF1 = 0xC1;
@@ -33,6 +22,8 @@ public class CustomImageAnalyzer implements ImageAnalyzer  {
 	private static final int M_SOF14 = 0xCE;
 	private static final int M_SOF15 = 0xCF;
 
+	private final String docroot;
+	
 	/** Erzeugt ein neues Objekt vom CustomImageAnalyzer.
 	 * Bei diesem ImageAnalyzer werden eigene Methoden zum Anladen eines
 	 * images benutzt.
@@ -55,10 +46,10 @@ public class CustomImageAnalyzer implements ImageAnalyzer  {
 	 * @param url Dateianme
 	 */
 	public ImageInfo analyse( String url ) throws Exception {
-	    ImageInfo ii = GIFImageHeader( docroot+url );
-		if (ii==null) ii = JPEGImageHeader( docroot+url );
+	    ImageInfo ii = gifImageHeader( docroot+url );
+		if (ii==null) ii = jpegImageHeader( docroot+url );
 
-        if (ii==null) ii = UnknownImageHeader( docroot+url) ;
+        if (ii==null) ii = unknownImageHeader( docroot+url) ;
 
 		return ii;
 	}
@@ -68,20 +59,20 @@ public class CustomImageAnalyzer implements ImageAnalyzer  {
 	 * @param in InputStream
 	 */
 	public ImageInfo analyse( InputStream in ) throws Exception {
-	    ImageInfo ii = GIFImageHeader( in );
-	    	if (ii==null) ii = JPEGImageHeader( in );
+	    ImageInfo ii = gifImageHeader( in );
+    	if (ii==null) ii = jpegmageHeader( in );
 
 		return ii;
 	}
 
 	private ImageInfo getImageHeader( String url, long size, DataInputStream dis ) throws Exception {
-		byte[] headerinfo = new byte[6];
-        byte[] widthinfo = new byte[2];
-        byte[] heightinfo = new byte[2];
+		final byte[] headerinfo = new byte[6];
+		final byte[] widthinfo = new byte[2];
+		final byte[] heightinfo = new byte[2];
 
 		dis.read( headerinfo,0,6 );
-		String signatur = new String(headerinfo,0,3);
-		String version = new String(headerinfo,3,3);
+		final String signatur = new String(headerinfo,0,3);
+		final String version = new String(headerinfo,3,3);
 
 		if ( (!signatur.equals("GIF")) && ( (!version.equals("89a")) || (!version.equals("87a")) ) )
 			return null;
@@ -89,8 +80,8 @@ public class CustomImageAnalyzer implements ImageAnalyzer  {
         dis.read( widthinfo, 0, 2);
         dis.read( heightinfo, 0, 2);
 		
-        int width = ( widthinfo[0] & 0xFF) | ( widthinfo[1] << 8);
-        int height = ( heightinfo[0] & 0xFF) | ( heightinfo[1] << 8);
+        final int width = ( widthinfo[0] & 0xFF) | ( widthinfo[1] << 8);
+        final int height = ( heightinfo[0] & 0xFF) | ( heightinfo[1] << 8);
 
         System.err.println( "IMAGE-BREITE: " + width );
         System.err.println( "IMAGE-H�HE: " + height );
@@ -99,10 +90,12 @@ public class CustomImageAnalyzer implements ImageAnalyzer  {
 	}
 	private ImageInfo getJPEGHeader( String url, long size, DataInputStream dis ) throws Exception {
 		boolean weiter = true;
-		int b,width=0,height=0;
+		int b;
+		int width=0;
+		int height=0;
 
-		int header1 = dis.readUnsignedByte();    // header: 0xFF
-		int header2 = dis.readUnsignedByte();    // header: 0xD8
+		final int header1 = dis.readUnsignedByte();    // header: 0xFF
+		final int header2 = dis.readUnsignedByte();    // header: 0xD8
 
 		if ((header1 != 0xFF) && (header2 != 0xD8)) return null;
 
@@ -129,19 +122,19 @@ public class CustomImageAnalyzer implements ImageAnalyzer  {
 					height = dis.readUnsignedShort();
 					width = dis.readUnsignedShort();
 					weiter = false;
-				break;
+					break;
 				default:
 					b = dis.readUnsignedShort() - 2;    // Segment-Length
 					dis.skipBytes(b);
-				break;
+					break;
 			}
 		} while (weiter);
 
 		return new ImageInfo(url, width, height, size );
 	}
-	private ImageInfo GIFImageHeader( InputStream in ) throws Exception {
-		DataInputStream dis = new DataInputStream( in );
-		return getImageHeader( "", 0l, dis ) ;
+	private ImageInfo gifImageHeader( InputStream in ) throws Exception {
+		final DataInputStream dis = new DataInputStream( in );
+		return getImageHeader( "", 0L, dis ) ;
 	}
 
 
@@ -149,10 +142,10 @@ public class CustomImageAnalyzer implements ImageAnalyzer  {
 	 * sich nicht um eine GIF-Datei handeln, wird ein NULL zurueck
 	 * gegeben.
 	 */
-	private ImageInfo GIFImageHeader( String url  ) throws Exception {
-		File f = new File( url );
-		FileInputStream in = new FileInputStream( url );
-		DataInputStream dis = new DataInputStream( in );
+	private ImageInfo gifImageHeader( String url  ) throws Exception {
+		final File f = new File( url );
+		final FileInputStream in = new FileInputStream( url );
+		final DataInputStream dis = new DataInputStream( in );
 		return getImageHeader( url, f.length() , dis ) ;
 	}
 
@@ -160,19 +153,19 @@ public class CustomImageAnalyzer implements ImageAnalyzer  {
 	 * sich nicht um eine JPEG-Datei handeln, wird ein NULL zurueck
 	 * gegeben.
 	 */
-	private ImageInfo JPEGImageHeader( String url ) throws Exception {
-		File f = new File( url );
-		FileInputStream in = new FileInputStream( url );
-		DataInputStream dis = new DataInputStream( in );
+	private ImageInfo jpegImageHeader( String url ) throws Exception {
+	    final File f = new File( url );
+	    final FileInputStream in = new FileInputStream( url );
+	    final DataInputStream dis = new DataInputStream( in );
 		return getJPEGHeader( url, f.length() , dis ) ;
 	}
-	private ImageInfo UnknownImageHeader( String url  ) throws Exception {
-		File f = new File( url );
+	private ImageInfo unknownImageHeader( String url  ) throws Exception {
+	    final File f = new File( url );
 		return new ImageInfo( url, -1, -1, f.length() ) ;
 	}
-	private ImageInfo JPEGImageHeader( InputStream in ) throws Exception {
-		DataInputStream dis = new DataInputStream( in );
-		return getJPEGHeader( "", 0l , dis ) ;
+	private ImageInfo jpegmageHeader( InputStream in ) throws Exception {
+	    final DataInputStream dis = new DataInputStream( in );
+		return getJPEGHeader( "", 0L , dis ) ;
 	}
  
  

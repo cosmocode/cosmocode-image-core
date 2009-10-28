@@ -9,13 +9,12 @@ package com.cosmocode.image;
 
 public class ImageInfo  {
  
-	public static final String cvsID = "$Id: ImageInfo.java,v 1.1.1.1 2002/09/27 15:45:05 huettemann Exp $";
-
-	int width, height;
-	long size;
-	String url;
-	String altTag;
-	String name;
+	private int width;
+	private int height;
+	private long size;
+	private String url;
+	private String altTag;
+	private String name;
 
 	/** Erzeugt ein neues ImageInfo-Object.
 	 */
@@ -66,8 +65,8 @@ public class ImageInfo  {
 
 	/** setzt das ALT-Attribute des image-tag.
 	 */
-	public void setAltAttribute(String name) {
-		this.altTag = name;
+	public void setAltAttribute(String n) {
+		this.altTag = n;
 	}
 
 	/** gibt das ALT-Attribute des image-tag zurueck.
@@ -93,8 +92,12 @@ public class ImageInfo  {
 	 * etc. 
 	 */
 	public String toString() {
-		String s = "<img src=\"" + url + "\" name=\"" + name + "\" alt=\"" + altTag + "\" border=\"0\" width=\"" + width + "\" height=\""+ height +"\">";
-		return s;
+		return "<img src=\"" + url + 
+		    "\" name=\"" + name + 
+		    "\" alt=\"" + altTag + 
+		    "\" border=\"0\" width=\"" + width + 
+		    "\" height=\""+ height + 
+		    "\">";
 	}
  
  

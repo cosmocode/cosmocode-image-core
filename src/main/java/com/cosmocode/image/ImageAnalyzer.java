@@ -9,9 +9,7 @@ package com.cosmocode.image;
 
 public interface ImageAnalyzer  {
  
-	public static final String cvsID = "$Id: ImageAnalyzer.java,v 1.1.1.1 2002/09/27 15:45:05 huettemann Exp $";
-
-	public ImageInfo analyse( String url ) throws Exception ;
+	ImageInfo analyse( String url ) throws Exception ;
  
 } // end class ImageAnalyzer
  
