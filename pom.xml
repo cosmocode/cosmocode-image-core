@@ -4,7 +4,7 @@
   <groupId>com.cosmocode.image</groupId>
   <artifactId>cosmocode-image-core</artifactId>
   <packaging>jar</packaging>
-  <version>0.7.0.0</version>
+  <version>1.0-SNAPSHOT</version>
   <name>CosmoCode Image Core</name>
   <url>http://maven.apache.org</url>
   <parent>
